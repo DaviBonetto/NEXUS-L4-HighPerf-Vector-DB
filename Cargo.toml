@@ -1,0 +1,19 @@
+[package]
+name = "nexus-vector-db"
+version = "0.1.0"
+edition = "2021"
+authors = ["Davi Bonetto <davi.bonetto100@gmail.com>"]
+description = "L4 High-Performance Vector Database with Layered Architecture"
+repository = "https://github.com/DaviBonetto/NEXUS-L4-HighPerf-Vector-DB"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+anyhow = "1.0"
+thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
