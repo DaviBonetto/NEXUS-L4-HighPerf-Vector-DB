@@ -11,9 +11,13 @@ pub struct Vector {
 
 impl Vector {
     pub fn new(id: String, data: Vec<f32>) -> Self {
-        Self { id, data, metadata: None }
+        Self {
+            id,
+            data,
+            metadata: None,
+        }
     }
-    
+
     pub fn dimension(&self) -> usize {
         self.data.len()
     }

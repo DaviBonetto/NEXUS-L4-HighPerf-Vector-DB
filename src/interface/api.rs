@@ -66,17 +66,17 @@ pub async fn upsert(
     body: web::Json<UpsertRequest>,
 ) -> impl Responder {
     let dimension = body.embedding.len();
-    
+
     let record = VectorRecord {
         id: body.id.clone(),
         embedding: body.embedding.clone(),
         metadata: body.metadata.clone(),
     };
-    
+
     store.insert(record);
-    
+
     println!("📥 UPSERT: id={}, dim={}", body.id, dimension);
-    
+
     HttpResponse::Ok().json(UpsertResponse {
         success: true,
         id: body.id.clone(),
@@ -90,7 +90,7 @@ pub async fn query(
     body: web::Json<QueryRequest>,
 ) -> impl Responder {
     let results = search_nearest(&store, &body.embedding, body.top_k);
-    
+
     let matches: Vec<MatchResult> = results
         .into_iter()
         .map(|r| MatchResult {
@@ -99,11 +99,16 @@ pub async fn query(
             metadata: r.metadata,
         })
         .collect();
-    
+
     let count = matches.len();
-    
-    println!("🔍 QUERY: dim={}, top_k={}, found={}", body.embedding.len(), body.top_k, count);
-    
+
+    println!(
+        "🔍 QUERY: dim={}, top_k={}, found={}",
+        body.embedding.len(),
+        body.top_k,
+        count
+    );
+
     HttpResponse::Ok().json(QueryResponse {
         results: matches,
         count,
@@ -113,7 +118,7 @@ pub async fn query(
 /// GET /stats - Get database statistics
 pub async fn stats(store: web::Data<Arc<VectorStore>>) -> impl Responder {
     let total = store.len();
-    
+
     HttpResponse::Ok().json(StatsResponse {
         total_vectors: total,
         status: "operational".to_string(),
@@ -135,6 +140,6 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
             .route("/health", web::get().to(health))
             .route("/stats", web::get().to(stats))
             .route("/upsert", web::post().to(upsert))
-            .route("/query", web::post().to(query))
+            .route("/query", web::post().to(query)),
     );
 }

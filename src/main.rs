@@ -15,12 +15,15 @@ async fn main() -> std::io::Result<()> {
     println!("══════════════════════════════════════════════════════════════════════");
     println!("🧬 NEXUS-L4 // High-Performance Vector Database");
     println!("══════════════════════════════════════════════════════════════════════");
-    
+
     // Initialize Vector Store
     let store = Arc::new(VectorStore::new());
     println!("💾 VectorStore initialized (in-memory)");
-    
-    println!("🌐 Starting HTTP server on http://{}:{}", SERVER_HOST, SERVER_PORT);
+
+    println!(
+        "🌐 Starting HTTP server on http://{}:{}",
+        SERVER_HOST, SERVER_PORT
+    );
     println!("══════════════════════════════════════════════════════════════════════");
     println!("");
     println!("📌 Endpoints:");
@@ -30,7 +33,7 @@ async fn main() -> std::io::Result<()> {
     println!("   GET  /health  - Health check");
     println!("");
     println!("══════════════════════════════════════════════════════════════════════");
-    
+
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(store.clone()))
