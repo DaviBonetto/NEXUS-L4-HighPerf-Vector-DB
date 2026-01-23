@@ -1,4 +1,6 @@
 //! Layer 1: Interface Layer
-//! Handles external communication (CLI, API, gRPC)
 
+pub mod api;
 pub mod cli;
+
+pub use api::configure_routes;

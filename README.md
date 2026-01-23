@@ -12,106 +12,100 @@
 ### 🧬 L4 High-Performance Vector Database
 
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
-[![Layer](https://img.shields.io/badge/Layer-L4-blueviolet?style=for-the-badge)](#)
-[![Math](https://img.shields.io/badge/Math-Linear_Algebra-00ADD8?style=for-the-badge)](#)
-[![Status](https://img.shields.io/badge/Status-Development-yellow?style=for-the-badge)](#)
+[![Actix](https://img.shields.io/badge/Actix--Web-4.0-blue?style=for-the-badge)](https://actix.rs/)
+[![Status](https://img.shields.io/badge/Status-Beta-green?style=for-the-badge)](#)
 
 **Part of the Titan Protocol Initiative — System 03/300**
 
-*Zero-Copy Vector Operations with SIMD Auto-Vectorization*
+*HTTP API for Vector Storage and Similarity Search*
 
 </div>
-
----
-
-## 🏗️ Layered Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    NEXUS-L4 Vector DB                       │
-├─────────────────────────────────────────────────────────────┤
-│  Layer 1: Interface                                         │
-│  └── src/interface/     CLI, API, gRPC handlers             │
-├─────────────────────────────────────────────────────────────┤
-│  Layer 2: Engine                                            │
-│  └── src/engine/        Search orchestration, query logic   │
-├─────────────────────────────────────────────────────────────┤
-│  Layer 3: Core                                              │
-│  └── src/core/          Math kernels, vector operations     │
-│      ├── math.rs        cosine_similarity, euclidean_dist   │
-│      └── vector.rs      Vector struct with metadata         │
-├─────────────────────────────────────────────────────────────┤
-│  Layer 4: Storage                                           │
-│  └── src/storage/       Persistence, disk I/O               │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## ⚡ Performance
-
-| Operation | Dimension | Time per Op |
-|-----------|-----------|-------------|
-| Cosine Similarity | 1536 (Ada-002) | ~500 ns |
-| Euclidean Distance | 1536 (Ada-002) | ~400 ns |
-
-*Benchmarked on release build with LTO enabled*
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
+# Start the server
 cd ~/NEXUS-L4-HighPerf-Vector-DB
-
-# Run benchmark
 cargo run --release
 
-# Run tests
-cargo test
+# Server runs on http://127.0.0.1:8081
 ```
 
 ---
 
-## 📁 Project Structure
+## 📚 API Reference
 
+### Insert Vector
+
+```bash
+curl -X POST http://127.0.0.1:8081/upsert \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "doc-001",
+    "embedding": [0.1, 0.2, 0.3, ...],
+    "metadata": {"title": "Example Document"}
+  }'
 ```
-src/
-├── lib.rs              # Module exports
-├── main.rs             # Performance benchmark
-├── interface/
-│   ├── mod.rs
-│   └── cli.rs          # CLI interface
-├── engine/
-│   ├── mod.rs
-│   └── search.rs       # Search orchestration
-├── core/
-│   ├── mod.rs
-│   ├── math.rs         # Math kernels (SIMD optimized)
-│   └── vector.rs       # Vector types
-└── storage/
-    ├── mod.rs
-    └── memory.rs       # In-memory store
+
+### Search Nearest
+
+```bash
+curl -X POST http://127.0.0.1:8081/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "embedding": [0.1, 0.2, 0.3, ...],
+    "top_k": 5
+  }'
+```
+
+### Health Check
+
+```bash
+curl http://127.0.0.1:8081/health
+```
+
+### Statistics
+
+```bash
+curl http://127.0.0.1:8081/stats
 ```
 
 ---
 
-## 🔬 Math Kernels
+## 🏗️ Architecture
 
-```rust
-// Cosine Similarity - SIMD optimized
-pub fn cosine_similarity(a: &[f32], b: &[f32]) -> Result<f32, MathError>
-
-// Euclidean Distance - SIMD optimized  
-pub fn euclidean_distance(a: &[f32], b: &[f32]) -> Result<f32, MathError>
 ```
+┌──────────────────────────────────────────────────────────────┐
+│  Layer 1: Interface (HTTP API)                               │
+│  └── /upsert, /query, /stats, /health                        │
+├──────────────────────────────────────────────────────────────┤
+│  Layer 2: Engine (Search)                                    │
+│  └── search_nearest() - Top-K similarity search              │
+├──────────────────────────────────────────────────────────────┤
+│  Layer 3: Core (Math Kernels)                                │
+│  └── cosine_similarity() - SIMD optimized                    │
+├──────────────────────────────────────────────────────────────┤
+│  Layer 4: Storage (In-Memory)                                │
+│  └── VectorStore with RwLock                                 │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚡ Performance
+
+| Metric | Value |
+|--------|-------|
+| Cosine Similarity | ~500 ns/op |
+| Port | 8081 |
+| Concurrency | RwLock (parking_lot) |
 
 ---
 
 <div align="center">
 
 **Built with 🦀 Rust by [Davi Bonetto](https://github.com/DaviBonetto)**
-
-*Part of the Titan Protocol Initiative — System 03/300*
 
 </div>

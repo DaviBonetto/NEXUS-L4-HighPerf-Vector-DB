@@ -1,24 +1,41 @@
-//! Search engine orchestration
+//! Search Engine - Finds nearest vectors
 
-use crate::core::math::{cosine_similarity, euclidean_distance};
-use anyhow::Result;
+use crate::core::math::cosine_similarity;
+use crate::storage::{VectorRecord, VectorStore};
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
-    pub index: usize,
+    pub id: String,
     pub score: f32,
+    pub metadata: serde_json::Value,
 }
 
-pub fn find_most_similar(query: &[f32], vectors: &[Vec<f32>]) -> Result<SearchResult> {
-    let mut best_idx = 0;
-    let mut best_score = f32::MIN;
+pub fn search_nearest(
+    store: &VectorStore,
+    query: &[f32],
+    top_k: usize,
+) -> Vec<SearchResult> {
+    let vectors = store.list_all();
     
-    for (i, vec) in vectors.iter().enumerate() {
-        let score = cosine_similarity(query, vec)?;
-        if score > best_score {
-            best_score = score;
-            best_idx = i;
-        }
-    }
+    let mut results: Vec<SearchResult> = vectors
+        .iter()
+        .filter_map(|record| {
+            match cosine_similarity(query, &record.embedding) {
+                Ok(score) => Some(SearchResult {
+                    id: record.id.clone(),
+                    score,
+                    metadata: record.metadata.clone(),
+                }),
+                Err(_) => None,
+            }
+        })
+        .collect();
     
-    Ok(SearchResult { index: best_idx, score: best_score })
+    // Sort by score descending (highest similarity first)
+    results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    
+    // Return top-k
+    results.truncate(top_k);
+    results
 }
