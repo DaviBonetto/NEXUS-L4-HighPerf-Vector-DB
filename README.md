@@ -9,7 +9,7 @@
   ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
 ```
 
-### 🧬 L4 High-Performance Vector Database
+### 🧬 L4 High-Performance Vector Databas
 
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![Actix](https://img.shields.io/badge/Actix--Web-4.0-blue?style=for-the-badge)](https://actix.rs/)
